@@ -1,16 +1,24 @@
 {
-  "name": "ptsge",
+  "name": "forum-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Forum API with TypeScript and DTO",
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "server.js",
+  "main": "src/server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "npx tsx ./src/server.ts",
+    "check": "npx tsc --noEmit"
   },
   "dependencies": {
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }
