@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
+    "module": "preserve",
     "target": "esnext",
-    "types": [],
+    "types": [
+      "node"
+    ],
     
     "sourceMap": true,
     "declaration": true,
@@ -17,7 +19,9 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"]
 }
