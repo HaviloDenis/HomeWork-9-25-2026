@@ -1,47 +1,53 @@
 import type { Post } from "../domain/post/entity.js"
 import type { PostRepository } from "../domain/post/repository.js"
 
-export function createPostRepository(): PostRepository {
-    let posts: Post[] = [
-        {
-            id: "1",
-            title: "First Post",
-            content: "Content of the first post",
-            author: "admin",
-            category: "programming"
-        },
-        {
-            id: "2",
-            title: "Second Post",
-            content: "Content of the second post",
-            author: "admin",
-            category: "programming"
-        }
-    ]
+// отримуємо тип prisma database client
+type DataBase = typeof import("../prisma/db.js").db
+
+export function createPostRepository(database: DataBase): PostRepository {
     return {
         async getAll(category, take){
-            let result = [...posts]
+            // database - підключення до БД 
+            // ORM - інструмент для роботи з БД
+            // public - схема БД
+            // Post - таблиця постів
+            // orderBy - сортуємо пости
+            // post.id.asc - сортуємо пости за зростанням id (desc - за спаданням)
+            let query = database.orm.public.Post.orderBy((post) => 
+                post.id.asc()
+            )
             if (category) {
-                result = result.filter((post) => post.category === category)
+                query = query.where({ category })
             }
-            return take === undefined ? result : result.slice(0, take)
+            const posts = !take ? await query.all() : await query.limit(take).all()
+            return posts.map((post) => ({
+                ...post,
+                id: String(post.id)
+            }))
         },
         async getById(id){
-            return posts.find(
-                (post)=>{ return post.id === id }
-            )
+            // where - знайти пост з указаним параметром
+            // .first - взяти перший знайдений пост
+            const numId = Number(id)
+            if (Number.isNaN(numId)) {
+                return undefined
+            }
+            const post = await database.orm.public.Post.where({ id: numId }).first()
+            if (!post) {
+                return undefined
+            }
+            return {
+                ...post,
+                id: String(post.id)
+            }
         },
         async createPost(data){
-            await new Promise<void>((resolve)=>{
-                setTimeout(resolve, 500)
-            })
-            const newId = String(posts.length + 1)
-            const post =  {
-                id: newId,
-                ...data
+            // create - створення нового поста у базі даних
+            const post = await database.orm.public.Post.create(data)
+            return {
+                ...post,
+                id: String(post.id)
             }
-            posts = [...posts, post]
-            return post
         }
     }
 }
