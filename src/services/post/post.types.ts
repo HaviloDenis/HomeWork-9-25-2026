@@ -1,14 +1,14 @@
-import type { Post } from "../../domain/post/entity.js"
+import type { Post, PostWithCategory } from "../../domain/post/entity.js";
 
 export interface CreatePostInput {
-    title: string,
-    content: string,
-    author?: string,
-    category: string
+    title: string;
+    content: string;
+    author?: string;
+    categoryId: number;
 }
 
 export interface PostService {
-    getPosts(category?: string, take?: number): Promise<Post[]>
-    getPostById(id: string): Promise<Post | undefined>
-    createPost(input: CreatePostInput): Promise<Post | null>
+    getPosts(categoryName?: string, categoryId?: number, take?: number): Promise<PostWithCategory[]>;
+    getPostById(id: number): Promise<PostWithCategory | null>;
+    createPost(input: CreatePostInput): Promise<Post | null>;
 }

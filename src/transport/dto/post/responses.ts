@@ -1,7 +1,11 @@
 export interface PostResponse {
-    id: string
-    title: string
-    content: string
-    author: string
-    category: string
+    id: number;
+    title: string;
+    content: string;
+    author: string;
+    categoryId: number;
+    category?: {
+        id: number;
+        name: string;
+    };
 }
