@@ -21,8 +21,8 @@ export function createPostService(repository: PostRepository): PostService {
             return repository.createPost({
                 title,
                 content: input.content.trim(),
-                author: input.author ? input.author.trim() : "admin",
-                categoryId: input.categoryId
+                categoryId: input.categoryId,
+                authorId: input.authorId
             });
         }
     };

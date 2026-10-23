@@ -1,9 +1,9 @@
-import type { Post } from "../domain/post/entity.js"
-import type { PostRepository } from "../domain/post/repository.js"
-import { isStructuredError } from "@prisma/orm-postgres/utils"
+import type { Post } from "../domain/post/entity.js";
+import type { PostRepository } from "../domain/post/repository.js";
+import { isStructuredError } from "@prisma/orm-postgres/utils";
 
 // отримуємо тип prisma database client
-type DataBase = typeof import("../prisma/db.js").db
+type DataBase = typeof import("../prisma/db.js").db;
 
 export function createPostRepository(database: DataBase): PostRepository {
     return {
@@ -19,9 +19,11 @@ export function createPostRepository(database: DataBase): PostRepository {
                     .where({ categoryId })
                     // використовується для загрузки зв'язаних данних (relations)
                     .include("category")
+                    .include("author")
                     .orderBy((post) => post.id.asc())
                 : database.orm.public.Post
                     .include("category")
+                    .include("author")
                     .orderBy((post) => post.id.asc());
 
             let posts = await query.all();
@@ -33,28 +35,66 @@ export function createPostRepository(database: DataBase): PostRepository {
                 );
             }
 
+            const mappedPosts = posts.map((p) => ({
+                id: p.id,
+                title: p.title,
+                content: p.content,
+                categoryId: p.categoryId,
+                authorId: p.authorId,
+                category: {
+                    id: p.category.id,
+                    name: p.category.name
+                },
+                author: {
+                    id: p.author.id,
+                    email: p.author.email
+                }
+            }));
+
             if (!take) {
-                return posts;
+                return mappedPosts;
             }
             // limit - обмежує число постів
-            return posts.slice(0, take);
+            return mappedPosts.slice(0, take);
         },
         async getById(id) {
             // where - знайти пост з указаним параметром
             // .first - взяти перший знайдений пост
-            return database.orm.public.Post
+            const post = await database.orm.public.Post
                 .where({ id })
                 .include("category")
+                .include("author")
                 .first();
+
+            if (!post) {
+                return null;
+            }
+
+            return {
+                id: post.id,
+                title: post.title,
+                content: post.content,
+                categoryId: post.categoryId,
+                authorId: post.authorId,
+                category: {
+                    id: post.category.id,
+                    name: post.category.name
+                },
+                author: {
+                    id: post.author.id,
+                    email: post.author.email
+                }
+            };
         },
         async createPost(data) {
-            const { categoryId, ...fields } = data;
+            const { categoryId, authorId, ...fields } = data;
             // create - створення нового поста у базі даних
             try {
                 return await database.orm.public.Post.create({
                     ...fields,
                     // connect - використовується для з'єднання записів між собою у таблицях
-                    category: (category) => category.connect({ id: categoryId })
+                    category: (category) => category.connect({ id: categoryId }),
+                    author: (author) => author.connect({ id: authorId })
                 });
             } catch (error) {
                 if (
@@ -73,6 +113,10 @@ export function createPostRepository(database: DataBase): PostRepository {
                     isStructuredError(error) &&
                     error.code === "ORM.RELATION_ROW_MISSING"
                 ) {
+                    const message = error.message.toLowerCase();
+                    if (message.includes("user") || message.includes("author")) {
+                        throw new Error("AUTHOR_NOT_FOUND");
+                    }
                     throw new Error("CATEGORY_NOT_FOUND");
                 }
                 throw error;

@@ -91,13 +91,13 @@ export function createPostHandler(postService: PostService): PostHandlers {
                     return;
                 }
 
-                const { title, content, author, categoryId } = body;
+                const { title, content, categoryId, authorId } = body;
 
                 if (
                     typeof title !== "string" || title.trim().length === 0 ||
                     typeof content !== "string" || content.trim().length === 0 ||
                     typeof categoryId !== "number" || !Number.isInteger(categoryId) || categoryId <= 0 ||
-                    (author !== undefined && typeof author !== "string")
+                    typeof authorId !== "number" || !Number.isInteger(authorId) || authorId <= 0
                 ) {
                     res.status(422).json({ message: "Invalid post data" });
                     return;
@@ -106,8 +106,8 @@ export function createPostHandler(postService: PostService): PostHandlers {
                 const post = await postService.createPost({
                     title,
                     content,
-                    author,
-                    categoryId
+                    categoryId,
+                    authorId
                 });
 
                 if (!post) {
@@ -122,6 +122,13 @@ export function createPostHandler(postService: PostService): PostHandlers {
                     error.message === "CATEGORY_NOT_FOUND"
                 ) {
                     res.status(404).json({ message: "Category not found" });
+                    return;
+                }
+                if (
+                    error instanceof Error &&
+                    error.message === "AUTHOR_NOT_FOUND"
+                ) {
+                    res.status(404).json({ message: "Author not found" });
                     return;
                 }
                 if (

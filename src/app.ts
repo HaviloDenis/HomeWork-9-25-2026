@@ -7,6 +7,12 @@ import { createCategoryRouter } from './transport/routers/category.js';
 import { createCategoryHandler } from './transport/handlers/category.js';
 import { createCategoryRepository } from './repositories/category.js';
 import { createCategoryService } from './services/category.js';
+import { createUserRepository } from './repositories/user.js';
+import { createAuthService } from './services/auth/auth.js';
+import { hashPassword, verifyPassword } from './lib/password.js';
+import { signAccessToken } from './lib/jwt.js';
+import { createAuthHandler } from './transport/handlers/auth.js';
+import { createAuthRouter } from './transport/routers/auth.js';
 import { db } from './prisma/db.js';
 
 const app = express();
@@ -23,12 +29,23 @@ const postService = createPostService(postRepository);
 const postHandlers = createPostHandler(postService);
 const postRouter = createPostRouter(postHandlers);
 
+// Ручний DI для Auth
+const authRepository = createUserRepository(db);
+const authService = createAuthService(
+    authRepository,
+    { hash: hashPassword, verify: verifyPassword },
+    { signAccessToken }
+);
+const authHandler = createAuthHandler(authService);
+const authRouter = createAuthRouter(authHandler);
+
 // Middleware
 app.use(express.json());
 
 // Роути
 app.use('/categories', categoryRouter);
 app.use('/posts', postRouter);
+app.use('/auth', authRouter);
 
 const PORT = 8000;
 const HOST = 'localhost';
