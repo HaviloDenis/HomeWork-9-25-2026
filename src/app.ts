@@ -14,6 +14,7 @@ import { signAccessToken } from './lib/jwt.js';
 import { createAuthHandler } from './transport/handlers/auth.js';
 import { createAuthRouter } from './transport/routers/auth.js';
 import { db } from './prisma/db.js';
+import cors from 'cors';
 
 const app = express();
 
@@ -39,6 +40,7 @@ const authService = createAuthService(
 const authHandler = createAuthHandler(authService);
 const authRouter = createAuthRouter(authHandler);
 
+app.use(cors({ origin: "http://localhost:5173" }));
 // Middleware
 app.use(express.json());
 
