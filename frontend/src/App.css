@@ -191,3 +191,50 @@
   margin: 16px 0;
   text-align: left;
 }
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+
+.auth-form {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  width: 240px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.auth-form h2 {
+  margin: 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+.auth-form input {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: transparent;
+  color: inherit;
+  outline: none;
+}
+
+.auth-form button {
+  padding: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: var(--social-bg, #2a2a2a);
+  color: inherit;
+}

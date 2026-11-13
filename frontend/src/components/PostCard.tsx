@@ -6,7 +6,6 @@ type PostCardProps = {
 
 export function PostCard({ post }: PostCardProps) {
     const categoryName = typeof post.category === "object" && post.category !== null ? post.category.name : post.category;
-    const authorEmail = typeof post.author === "object" && post.author !== null ? post.author.email : post.author;
 
     return (
         <div className="Post-Card">
@@ -18,7 +17,7 @@ export function PostCard({ post }: PostCardProps) {
                 {post.content}
             </p>
             <p className="Post-Author">
-                Author: {authorEmail}
+                Author: admin
             </p>
         </div>
     );
